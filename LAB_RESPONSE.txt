@@ -1,0 +1,61 @@
+Advanced Codex Lab - Submission
+
+I completed this lab using Codex to inspect the repository, prepare the development environment, identify the issues, implement the changes, review the diff, validate the behavior, and prepare the Git changes for review.
+
+Setup
+
+I started from the canonical CodexLab repository, created a virtual environment with `python3 -m venv .venv`, and installed the dependencies with `pip install -r requirements.txt`.
+
+I attempted to start the app with Uvicorn in order to run the curl commands from the lab instructions. This execution environment does not allow local port binding, so Uvicorn could not open 127.0.0.1 on port 8000 or an alternative port. To complete the verification without modifying repository data, I exercised the same route handlers and persistence layer using a temporary copy of data/tasks.json.
+
+Repository understanding
+
+This project is a small FastAPI task-tracker API with JSON persistence. The GET /tasks flow is:
+
+1. app/main.py defines the route and receives the status and q parameters.
+2. app/schemas.py defines and validates the request and response models.
+3. app/service.py contains list_tasks and applies the business logic.
+4. app/store.py reads and writes data/tasks.json.
+5. data/tasks.json contains the sample tasks.
+
+Issues found and fixes
+
+The status filter was broken because each task was compared with the literal string "status" instead of the received status value. I changed the comparison to use the actual status parameter.
+
+The complete-task endpoint returned an updated copy of a task but did not update or save the original task list. I changed it to update the task in the list and call save_tasks(tasks). A later read now retains status "done" and a non-null completed_at value.
+
+The q parameter was already declared in the route, but its filtering behavior was not implemented in the service layer. I added optional case-insensitive searching with casefold() across both title and description. It composes with the status filter and leaves existing behavior unchanged when q is omitted.
+
+Verification
+
+The following checks passed using temporary task data:
+
+- GET /tasks returns task IDs [1, 2, 3, 4].
+- GET /tasks?status=open returns task IDs [1, 3, 4].
+- GET /tasks?status=done returns task ID [2].
+- GET /tasks?q=LaUnCh returns task ID [1].
+- GET /tasks?q=REPORT returns task ID [4].
+- GET /tasks?status=open&q=plan returns task ID [3].
+- Completing task 3 and reading it again retains status "done" and a non-null completed_at value.
+
+I also ran `.venv/bin/python -m compileall -q app` and `git diff --check`, both without errors. I confirmed that data/tasks.json did not contain runtime-test changes before committing.
+
+In an environment that permits a local server, the equivalent final verification commands are:
+
+uvicorn app.main:app --reload
+curl "http://127.0.0.1:8000/tasks?status=open"
+curl "http://127.0.0.1:8000/tasks?status=done"
+curl -X POST http://127.0.0.1:8000/tasks/3/complete
+curl http://127.0.0.1:8000/tasks/3
+curl "http://127.0.0.1:8000/tasks?q=launch"
+curl "http://127.0.0.1:8000/tasks?status=open&q=plan"
+
+Git and delivery
+
+The functional change is limited to app/service.py. No accidental change to data/tasks.json was included.
+
+I created and published the codex/lab-fixes branch in my fork, jonruizcarrillo-rgb/CodexLab. The implementation commit is:
+
+dbb5c10 Fix task bugs and add search filter
+
+The branch is ready for pull request review. The acceptance criteria are covered: correct status filtering, persisted completion with a timestamp, case-insensitive search, combined filters, and a focused reviewable diff.
