@@ -24,7 +24,7 @@ def read_tasks(
     q: str | None = Query(
         default=None,
         min_length=1,
-        description="Case-insensitive text search across title and description.",
+        description="Case-sensitive text search across title and description.",
     ),
 ) -> list[Task]:
     return list_tasks(status=status, q=q)
