@@ -7,19 +7,15 @@ from .store import load_tasks, next_task_id, save_tasks
 
 
 def list_tasks(status: str | None = None, q: str | None = None) -> list[dict[str, Any]]:
-    """Return task records, optionally filtered by status and search text."""
+    """Return task records, optionally filtered by status and case-sensitive text."""
     tasks = load_tasks()
-    query = q.casefold() if q is not None else None
     filtered: list[dict[str, Any]] = []
 
     for task in tasks:
         if status and task["status"] != status:
             continue
 
-        if query is not None and not (
-            query in task["title"].casefold()
-            or query in task["description"].casefold()
-        ):
+        if q is not None and q not in task["title"] and q not in task["description"]:
             continue
 
         filtered.append(task)
