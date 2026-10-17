@@ -234,6 +234,20 @@ What Codex should do for you in this task:
 - edit the code
 - rerun the API calls to confirm the fix
 
+#### Regression verification
+
+The Task 2 fixes compare task status with the supplied filter value and save the
+updated task list before returning a completed task. Completion persists both
+`status="done"` and a non-null UTC `completed_at`.
+
+Run the regression tests after activating the virtual environment:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+The tests use a temporary JSON file and do not modify the sample task data.
+
 ### Task 3: Add New Functionality
 
 Add search support to the task list endpoint.
@@ -256,8 +270,17 @@ Example desired behavior:
 
 ```bash
 curl "http://127.0.0.1:8000/tasks?q=launch"
+curl "http://127.0.0.1:8000/tasks?q=report"
 curl "http://127.0.0.1:8000/tasks?status=open&q=plan"
 ```
+
+Search is implemented as case-insensitive substring matching in either field.
+When both `status` and `q` are supplied, tasks must match both filters. Omitting
+`q` leaves the existing listing behavior unchanged. An empty `q` is rejected by
+the API's existing minimum-length validation.
+
+With the unchanged sample data, the examples return task IDs `1`, `4`, and `3`,
+respectively. Run `python -m unittest discover -s tests -v` for regression coverage.
 
 Suggested Codex prompts:
 
