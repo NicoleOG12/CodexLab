@@ -21,6 +21,17 @@ def save_tasks(tasks: list[dict[str, Any]]) -> None:
         json.dump(tasks, handle, indent=2)
 
 
+def update_task(updated_task: dict[str, Any]) -> bool:
+    """Replace a stored task and persist the updated collection."""
+    tasks = load_tasks()
+    for index, task in enumerate(tasks):
+        if task["id"] == updated_task["id"]:
+            tasks[index] = updated_task
+            save_tasks(tasks)
+            return True
+    return False
+
+
 def next_task_id(tasks: list[dict[str, Any]]) -> int:
     """Generate the next numeric ID based on the existing records."""
     return max((task["id"] for task in tasks), default=0) + 1
