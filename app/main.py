@@ -18,15 +18,8 @@ def health_check() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/tasks", response_model=list[Task])
-def read_tasks(
-    status: TaskStatus | None = Query(default=None),
-    q: str | None = Query(
-        default=None,
-        min_length=1,
-        description="Case-insensitive text search across title and description.",
-    ),
-) -> list[Task]:
+@app.get("/tasks")
+def read_tasks(status: str = None, q: str = None):
     return list_tasks(status=status, q=q)
 
 

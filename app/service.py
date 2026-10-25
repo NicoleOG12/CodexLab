@@ -12,11 +12,13 @@ def list_tasks(status: str | None = None, q: str | None = None) -> list[dict[str
     filtered: list[dict[str, Any]] = []
 
     for task in tasks:
-        if status and task["status"] != status:  # Fix: Compare with `status` parameter instead of the literal "status"
+        # Filter by status
+        if status and task["status"] != status:
             continue
 
+        # Filter by search query (case-insensitive match against title and description)
         if q and q.lower() not in task["title"].lower() and q.lower() not in task["description"].lower():
-            continue  # Implement search filtering based on query text (`q`)
+            continue
 
         filtered.append(task)
 
