@@ -17,6 +17,9 @@ def list_tasks(status: str | None = None, q: str | None = None) -> list[dict[str
         if status and task["status"] != status:
             continue
 
+        if q and q.casefold() not in f"{task['title']} {task['description']}".casefold():
+            continue 
+
         # Instructor note: partial feature for the lab.
         # The route already accepts `q`, but search is not implemented yet.
         filtered.append(task)
