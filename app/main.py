@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from fastapi import FastAPI, HTTPException, Query
 
 from .schemas import Task, TaskCreate, TaskStatus
@@ -20,8 +22,8 @@ def health_check() -> dict[str, str]:
 
 @app.get("/tasks", response_model=list[Task])
 def read_tasks(
-    status: TaskStatus | None = Query(default=None),
-    q: str | None = Query(
+    status: Optional[TaskStatus] = Query(default=None),
+    q: Optional[str] = Query(
         default=None,
         min_length=1,
         description="Case-insensitive text search across title and description.",
