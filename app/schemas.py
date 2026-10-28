@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -24,7 +25,7 @@ class Task(BaseModel):
     status: TaskStatus
     priority: TaskPriority
     created_at: datetime
-    completed_at: datetime | None = None
+    completed_at: Optional[datetime] = None
 
 
 class TaskCreate(BaseModel):
